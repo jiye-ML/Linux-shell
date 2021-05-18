@@ -1,0 +1,103 @@
+1. 协议的概念
+
+	
+
+2. b/s c/s
+
+	C/S  优点：   1. 协议选用灵活。  2. 缓存数据。
+
+	     缺点：   1. 对用户的安全构成威胁  2. 开发工作量较大，调试困难
+
+
+	B/S  优点：   1.  2.  3. 跨平台
+
+	     缺点：   1. http   2.  
+
+	使用场景。
+
+	pad：    iphone 4   ipad 9    mac 11 13
+
+	
+
+3. 分层模型   7   4
+
+	
+
+4. 协议格式
+
+	数据包基本格式  数-应-传-网-链路
+
+	以太网帧格式
+
+	arp数据包格式 --- arp攻击
+
+	IP段格式 -- IP 32
+
+	TCP/UDP  --  prot 16  --- 65535  
+
+5. NAT映射   打洞机制
+
+6. 套接字
+
+	1. 成对出现
+
+	2. bind  IP port
+
+	3. 一个fd 两个buf  
+
+7. TCP  
+
+	预备知识。
+
+		"192.168.1.24" --》unsigned int -》 htonl() -》 网络字节序
+
+				   10101010101001  -->　１０１０１０１０１０１００１０１
+	
+		192.168.1.24 ------------------> 网络字节序  inet_pton();
+
+		网络字节序 ------------------> 点分十进制字符串  inet_ntop();
+
+	struct sockaddr_in addr;
+	
+	addr.sin_family = AF_INET/AFINET6;
+	addr.sin_port = htons/ntohs;
+	addr.sin_addr.s_addr = htonl; ntosl;  inet_pton  inet_ntop;
+		
+	bind( , （struct sockaddr *）&addr);
+
+	accept();
+
+	connect();
+
+C/S模型
+	server.c
+
+		1. socket()  建立套接字
+
+		2. bind() 绑定IP 端口号  (struct sockaddr_in addr 初始化)
+
+		3. listen() 指定最大同时发起连接数
+
+		4. accept()  阻塞等待客户端发起连接
+
+		5. read()
+		
+		6. 小--大
+
+		7. write 给 客户端
+
+		8. close();
+
+	client.c
+
+		1. socket();
+
+		2. bind();  可以依赖“隐式绑定”
+
+		3. connect();发起连接
+
+		4. write();
+		
+		5. read();
+
+		6. close();

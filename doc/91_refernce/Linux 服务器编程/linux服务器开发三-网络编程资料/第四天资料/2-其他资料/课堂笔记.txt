@@ -1,0 +1,182 @@
+多路IO转接服务器
+
+	epoll
+
+		API:
+			
+			epoll_create();   --- int epfd = epoll(10);  --- epfd(句柄)
+
+
+			 struct epoll_event events; events.events = EPOLLIN;
+
+						    events.data.fd = lfd;
+
+			epoll_ctl();	--- epoll(epfd, EPOLL_CTL_ADD, lfd, &events);	
+
+				op:	EPOLL_CTL_ADD/MOD/DEL
+
+				events: EPOLLIN/OUT/ERR
+
+           typedef union epoll_data {
+               void        *ptr;
+               int          fd;
+               uint32_t     u32;
+               uint64_t     u64;
+           } epoll_data_t;
+
+           struct epoll_event {
+               uint32_t     events;      /* Epoll events */
+               epoll_data_t data;        /* User data variable */
+           };
+					
+			struct epoll_event evt[100];
+
+			epoll_wait(epfd, evt, 100, -1);  select   poll 
+
+
+	struct epoll_evnet 结构体分析：
+
+		events; EPOLLIN/OUT/ERR
+
+		data:	fd u32 u64  void *ptr:   int int * char *  void (*fun)(int arg)  stuct {
+					
+												int fd;
+
+												void *arg;
+
+												void (*fun)(int fd, void *arg)	
+
+											  } *ptr;
+	epoll ET 
+	
+		边沿触发。    event = EPOLLIN | EPOLLET
+
+	epoll LT
+
+		水平触发。
+
+
+	epoll 非阻塞IO
+
+		边沿触发    while(read())   fcntl(O_NONBLOCK);
+
+
+	epoll 反应堆模型 (libevent 核心思想实现)
+
+		libevent  -- 跨平台   精炼--epoll  回调   
+
+		1. epoll --- 服务器 --- 监听 --- fd ----可读 ---- epoll返回 ---- read --- 小写转大写 --- write ---- epoll继续监听。
+
+		2. epoll 反应堆模型：
+													      ("滑动窗口")
+ 		1) epoll --- 服务器 --- 监听 --- cfd ---- 可读 ---- epoll返回 ---- read -- cfd从树上摘下 --- 设置监听cfd写事件， 操作 
+
+		--- 小写转大写 -- 等待epoll_wait 返回 --- 回写客户端 -- cfd从树上摘下 ----- 设置监听cfd读事件， 操作 -- epoll继续监听。
+
+		2) evt[i].events = EPOLLIN, evt[I].data.fd == cfd       *ptr     struct {int fd, void (*func)(void *arg), void *arg}
+
+struct myevent_s {
+    int fd;                                                 //要监听的文件描述符
+    int events;                                             //对应的监听事件
+    void *arg;                                              //泛型参数
+    void (*call_back)(int fd, int events, void *arg);       //回调函数
+    int status;                                             //是否在监听:1->在红黑树上(监听), 0->不在(不监听)
+    char buf[BUFLEN];
+    int len;
+    long last_active;                                       //记录每次加入红黑树 g_efd 的时间值
+};
+
+		   
+	心跳包
+
+		server/client    保持连接状态
+	兵乓包
+
+	TCP属性。———探测分节。
+
+
+	线程池
+
+
+struct threadpool_t {
+    pthread_mutex_t lock;               /* 用于锁住本结构体 */    
+    pthread_mutex_t thread_counter;     /* 记录忙状态线程个数de琐 -- busy_thr_num */
+    pthread_cond_t queue_not_full;      /* 当任务队列满时，添加任务的线程阻塞，等待此条件变量 */
+    pthread_cond_t queue_not_empty;     /* 任务队列里不为空时，通知等待任务的线程 */
+
+    pthread_t *threads;                 /* 存放线程池中每个线程的tid。数组 */
+    pthread_t adjust_tid;               /* 存管理线程tid */
+    threadpool_task_t *task_queue;      /* 任务队列 */
+
+    int min_thr_num;                    /* 线程池最小线程数 */
+    int max_thr_num;                    /* 线程池最大线程数 */
+    int live_thr_num;                   /* 当前存活线程个数 */
+    int busy_thr_num;                   /* 忙状态线程个数 */
+    int wait_exit_thr_num;              /* 要销毁的线程个数 */
+
+    int queue_front;                    /* task_queue队头下标 */
+    int queue_rear;                     /* task_queue队尾下标 */
+    int queue_size;                     /* task_queue队中实际任务数 */
+    int queue_max_size;                 /* task_queue队列可容纳任务数上限 */
+
+    int shutdown;                       /* 标志位，线程池使用状态，true或false */
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

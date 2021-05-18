@@ -1,0 +1,46 @@
+1. client.c  编写
+
+2. TCP三次握手建立连接
+
+	TCP——不会丢包（错！！！）  丢了可以重传。  
+
+3. MTU、mss、半关闭
+
+	MTU： 最大传输单元    受协议限制   以太网1500   IP 65535
+
+	mss： 受MTU 标示一个数据包携带数据的上限数。 
+
+	win： 滑动窗口——当前本端 能接收的数据上限值。(单位：字节)
+
+4. 错误处理
+
+	read 返回值：
+
+		1. > 0 实际读到的字节数 buf=1024  1.  == buf 1024   2. < buf  56；
+
+		2. = 0 数据读完(读到文件、管道、socket 末尾--对端关闭) 
+
+		3. -1  异常
+
+			1. errno == EINTR  被信号中断  重启/quit
+
+			2. errno == EAGAIN (EWOULDBLOCK) 非阻塞方式读，并且没有数据
+
+			3. 其他值   出现错误。--perror exit。
+	readn
+	
+	readline
+
+	错误一般思想  Accept 
+
+5. 并发服务器模型
+
+	多进程并发
+
+		fork   signal --- sigcation 
+
+	多线程并发
+
+		线程分离 detach 。 修改线程属性。
+
+		

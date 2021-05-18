@@ -1,0 +1,114 @@
+1. UDP协议
+
+	优缺点、适用场景。
+
+	TCP:	面向连接的可靠数据包传递	---完全弥补
+
+		优点：稳定： 1. 数据稳定  ---  丢包回传（回执机制）(丢包率97‰)
+
+			    2. 速率稳定
+
+			    3. 流量稳定    “滑动窗口” 
+
+		缺点： 效率低、速度慢
+
+		使用场景：大文件、重要文件传输
+
+
+	UDP：	无连接的不可靠报文传递。----完全不弥补
+
+		缺点：不稳定：数据、速率、流量
+
+		优点：效率高、速度快
+
+		使用场景：对实时性要求较高，视频会议、视频电话、广播、飞秋
+
+	腾讯： TCP --- TCP+UDP --- UDP + 应用层自定义协议弥补UDP的丢包。
+
+
+2. C/S模型
+
+	直接传送数据
+
+	
+
+
+3. 广播
+
+	IP：192.168.42.255(广播)   --32位  255  255.255.255.255
+
+	IP：192.168.42.1(网关)
+
+	int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+
+	给sockfd开放广播权限。
+
+4. 组播(多播)
+
+	int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+
+	server：获取组播权限。
+
+		setsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_IF, &group, sizeof(group));
+
+	client：将本客户端加入组播。
+
+		setsockopt(confd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &group, sizeof(group));
+
+	int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);	
+	
+	setsockopt作用：
+
+		1. 端口复用。
+
+		2. 设置缓冲区大小
+
+		3. 开放广播权限
+
+		4. 开放组播权限
+
+		5. 加入组播组。
+
+
+	分屏软件实现基本思路：
+
+		1. 屏幕截图模块。  24帧   几MB
+
+		2. 截取帧数  8-12帧  
+
+		3. 压缩图片 M --> K  
+
+		4. 压缩数据包
+
+		5. 传递 - 多播
+
+		6. 解压缩 --- 算法。	
+
+		7. 成像
+
+
+5. domain  本地套
+
+	1. Pipe fifo   实现最简单
+
+	2. mmap 	非血缘关系进程间
+
+	3. 信号		开销小
+
+	4. domain	稳定性最好
+
+	#define offsetof(type, member) ((int)&((type *)0)->MEMBER)
+
+	socket(AF_UNIX, SOCK_STREAM, 0);
+
+	struct sockaddr_un serv_addr;
+
+	serv_addr.sun_family = AF_UNIX;
+
+	strcpy(serv_addr.sun_path, "mysocket")
+
+	int len = offsetof(struct sockaddr_un, sun_path) + strlen(serv_addr.sun_path);
+
+	unlink("mysocket");
+	bind(sfd, (struct sockaddr *)&serv_addr, len);
+

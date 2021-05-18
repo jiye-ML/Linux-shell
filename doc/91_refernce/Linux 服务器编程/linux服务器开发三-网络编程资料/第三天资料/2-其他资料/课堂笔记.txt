@@ -1,0 +1,26 @@
+1. TCP状态转换
+
+	3种状态    2MSL  
+
+2. 半关闭
+
+	shutdown --- close
+
+3. 2MSL
+	
+4. 端口复用
+
+	setsockopt(); --- UNP 7
+
+5. 多路IO转接服务器
+
+	server--监听
+
+	select
+
+		参数： 返回值    4个辅助函数 	
+
+	poll
+
+		参数： struct { fd， evnets， events}
+
